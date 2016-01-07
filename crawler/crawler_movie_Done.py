@@ -33,6 +33,12 @@ class media():
             "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36",
             "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36"
         ]
+    
+    def total(self, __list):
+        num = 0
+        for part in __list:
+            num += 1
+        return num
 
     def GetContent(self):
         """
@@ -58,7 +64,9 @@ class media():
 
     def DealUrlFirst(self, all_link):
         try:
+            __allscore__ = '<li class="rating">(.*?)</li>'
             __score__ = '<span class="subject-rate">(.*?)</span>'
+            __none__ = '<span class="text-tip">(.*?)</span>'
             score = open(self.base_dir+"score.txt", "w")
 
             __name__ = 'mv_a_tl(.*?)a>'
@@ -74,10 +82,15 @@ class media():
                     urllib.urlretrieve(image, self.movie_pic_dir+'%s.jpg' % x)  
                     x = x + 1          
 
-                getScore = re.findall(__score__, link, re.S)
-                for part in getScore:
-#                    print part
-                    print >> score, part
+                allscore = re.findall(__allscore__, link, re.S)
+                for __score in allscore:
+                    if self.total(re.findall(__none__, __score, re.S)) > 0:
+                        print >> score, 0
+                    else:
+                        getScore = re.findall(__score__, __score, re.S)
+                        for part in getScore:
+        #                    print part
+                            print >> score, part
 
                 getName = re.findall(__name__, link, re.S)
                 __link__ = 'href="(.*?)" class="">'
@@ -128,7 +141,7 @@ class media():
         try:
             url = ""
             name = ""
-            for i in xrange(10):
+            for i in xrange(len(links)):
     #            print line.decode('utf-8').encode('gbk')
                 url = links[i].strip()     #the url of the movie
                 name = movies[i].strip().decode('utf-8').encode('gbk')   #the name of the movie
@@ -136,7 +149,11 @@ class media():
                 self.url = url
                 content = self.GetContent()
                 
-                detail = open(self.base_dir+name+"_detail.txt", "w")
+                detail = open(self.base_dir+name+'_'+str(i)+"_detail.txt", "w")
+                __date__ = '<span property="v:initialReleaseDate" content="(.*?)"'
+                dates = re.findall(__date__, content, re.S)
+                for date in dates:
+                    print >> detail, date
                 __sumary__ = ' <span property="v:summary" class="">(.*?)</span>'
                 sumarys = re.findall(__sumary__, content, re.S)
                 for sumary in sumarys:
@@ -144,13 +161,13 @@ class media():
     #                print sumary.strip().replace(" ", "").replace("<br>", "").replace("<br/>", "").replace("\n", "")
                 detail.close()
                 
-                recomment = open(self.base_dir+name+"_comment.txt", "w")
+                recomment = open(self.base_dir+name+'_'+str(i)+"_comment.txt", "w")
                 __comment__ = '<p class="">(.*?)</p>'
                 __support__ = '<span class="votes pr5">(.*?)</span>'
                 comments = re.findall(__comment__, content, re.S)
                 supports = re.findall(__support__, content, re.S)
                 for comment in comments:
-                    print >> recomment, comment.strip()
+                    print >> recomment, '-'+ comment.strip()
                 for support in supports:
                     print >> recomment, support.strip()
                 recomment.close()

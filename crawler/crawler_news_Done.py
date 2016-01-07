@@ -4,21 +4,20 @@
 """
 import re
 import random
-import urllib  
 import urllib2
 import os
 base_dir = "news"
 if not os.path.exists(base_dir):
     os.mkdir(base_dir)
 
-movie_pic_dir = base_dir+"/pic"
-if not os.path.exists(movie_pic_dir):
-    os.mkdir(movie_pic_dir)
+#movie_pic_dir = base_dir+"/pic"
+#if not os.path.exists(movie_pic_dir):
+#    os.mkdir(movie_pic_dir)
 
 class media():
     def __init__(self):
         self.base_dir = base_dir+"/"
-        self.movie_pic_dir = movie_pic_dir+'/'
+#        self.movie_pic_dir = movie_pic_dir+'/'
         self.url = ""
         self.host = ""
         self.referer = ""
@@ -42,6 +41,7 @@ class media():
                     content             the content of the web page
         """
         random_header = random.choice(self.my_headers)
+        print self.url
         req = urllib2.Request(self.url)
         req.add_header("User-Agent", random_header)
         req.add_header("Host", self.host)
@@ -113,6 +113,8 @@ class media():
 #                        print "NUM"
                         container2[i].append(one)
                     i += 1
+#                print container1
+#                print container2
                 self.GetDetails(container1, container2)
         except:
             print "The error is happening in DealUrlFirst"
@@ -152,23 +154,18 @@ class media():
             container1: org, title, link, number
             container2: title, link, number
         """
-        self.host = "movie.douban.com"
-        self.referer = "http://movie.douban.com/"
-        try:
-            for i in xrange(len(container1)):
-                name = container1[i][1]
-                detail = open(self.base_dir+name+".txt", 'w')
-                self.url = container1[i][2]
-                print >> detail, self.GetContent()
-                detail.close()
-            for i in xrange(len(container2)):
-                name = container2[i][0]
-                detail = open(self.base_dir+'1'+name+".txt", 'w')
-                self.url = container2[i][1]
-                print >> detail, self.GetContent()
-                detail.close()
-        except:
-            print "The error is happening in GetDetail."
+        org = open(self.base_dir+"org.txt", "w")
+        for i in xrange(len(container1)):
+            for j in xrange(len(container1[i])-1):
+                print >> org, container1[i][j]+"~",
+            print >> org, container1[i][len(container1[i])-1]
+        org.close()
+        rec = open(self.base_dir+"rec.txt", "w")
+        for i in xrange(len(container2)):
+            for j in xrange(len(container2[i])-1):
+                print >> rec, container2[i][j]+"~",
+            print >> rec, container2[i][len(container2[i])-1]
+        rec.close();
 
 product = media()
 product.GetUrlFirst()
